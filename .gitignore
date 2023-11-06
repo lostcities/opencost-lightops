@@ -1,0 +1,14 @@
+# Jetbrains project files
+.idea
+*.iml
+
+ui/.parcel-cache
+ui/.cache
+ui/dist
+ui/node_modules/
+cmd/costmodel/costmodel
+cmd/costmodel/costmodel-amd64
+cmd/costmodel/costmodel-arm64
+cmd/costmodel/__debug_bin
+pkg/cloud/azureorphan_test.go
+.vscode/launch.json

@@ -1,0 +1,43 @@
+trigger:
+  - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - name: containerRegistry
+    value: slbcentraldev
+  - name: repository
+    value: opencost-fork
+  - group: lightops-pipeline
+
+steps:
+
+- bash: |
+    VERSION=$(cat lightops/version)
+    # If not on the release branch, set the version to include a dev indicator
+    if [[ "${BUILD_SOURCEBRANCH}" != "${RELEASE_BRANCH}"  && ${BRANCH} != "master" ]]; then
+      BRANCH=$(echo ${BUILD_SOURCEBRANCH} | sed -e "s/refs\/heads\///")
+      VERSION="${VERSION}-dev.${BRANCH////-}"
+    fi
+
+    echo "##vso[task.setvariable variable=IMAGE_TAG]${VERSION}"
+
+- task: Docker@2
+  displayName: Login to $(containerRegistry)
+  inputs:
+    command: login
+    containerRegistry: $(containerRegistry)
+
+- task: Docker@2
+  displayName: Build and push image
+  env:
+    DOCKER_BUILDKIT: 1
+  inputs:
+    command: buildAndPush
+    repository: $(repository)
+    dockerfile: Dockerfile
+    containerRegistry: $(containerRegistry)
+    tags: |
+      $(IMAGE_TAG)
+
